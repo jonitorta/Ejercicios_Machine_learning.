@@ -1,8 +1,13 @@
 import os
+from typing_extensions import Self
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from PIL import Image
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
+
 
 data_dir ="Yoga" 
 
@@ -45,23 +50,37 @@ def create_unique_name(class_names, path = "Yoga"):
 image_files = create_unique_name(class_names)
 image_file_names = []
 image_file_labels = []
-#Create a big list with names of each image
+#Create a list with names of each image
 for image_file in image_files :
     image_file_names.extend(image_file)
-
+#Create a list with labels of each image 
 image_file_labels = [
     key for key in files_per_class 
     for i in range(files_per_class[key])
 ]
 
+def data_transformation(image_paths):
+    btw_im = [Image.open(image).convert("L") for image in image_paths]
+    matrix_representation = [np.array(image)/255 for image in btw_im]
+    return matrix_representation
 
+transformed_data = data_transformation(image_paths = image_file_names)
 
+#Create train and test set with stratify on the yoga position
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(
-    image_file_names,
+    transformed_data,
     image_file_labels,
     test_size = 0.2,
     stratify = image_file_labels
 )
+
+
+
+
+
+
+
+
 
 
 pass
