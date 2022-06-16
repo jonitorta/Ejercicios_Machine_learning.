@@ -44,13 +44,24 @@ def create_unique_name(class_names, path = "Yoga"):
 #Here we create a list with names per folder for each image
 image_files = create_unique_name(class_names)
 image_file_names = []
+image_file_labels = []
 #Create a big list with names of each image
 for image_file in image_files :
     image_file_names.extend(image_file)
 
+image_file_labels = [
+    key for key in files_per_class 
+    for i in range(files_per_class[key])
+]
 
 
 
+Xtrain, Xtest, Ytrain, Ytest = train_test_split(
+    image_file_names,
+    image_file_labels,
+    test_size = 0.2,
+    stratify = image_file_labels
+)
 
 
 pass
