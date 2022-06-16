@@ -1,12 +1,13 @@
 import os
-from typing_extensions import Self
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from PIL import Image
-from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.pipeline import Pipeline
+from sklearn.linear_model import SGDClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_predict
+from sklearn.metrics import confusion_matrix
 
 
 data_dir ="Yoga" 
@@ -38,7 +39,7 @@ total_files = sum(files_per_class.values())
 def create_unique_name(class_names, path = "Yoga"):
     '''
     This func create a list of lists, one list per folder in path 
-    and in each list store a unique file name 
+    and in each list store a unique file name per file 
     '''
     image_files = [[
         os.path.join(path, class_names, x)
@@ -59,22 +60,35 @@ image_file_labels = [
     for i in range(files_per_class[key])
 ]
 
-def data_transformation(image_paths):
-    btw_im = [Image.open(image).convert("L") for image in image_paths]
-    matrix_representation = [np.array(image)/255 for image in btw_im]
-    return matrix_representation
-
-transformed_data = data_transformation(image_paths = image_file_names)
-
 #Create train and test set with stratify on the yoga position
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(
-    transformed_data,
+    image_file_names,
     image_file_labels,
     test_size = 0.2,
     stratify = image_file_labels
 )
 
+def data_transformation(image_paths):
+    '''
+    Transform color images to a data frame, each row represent
+    an image and the column the pixel with values 0 to 1 
+    '''
+    btw_im = [Image.open(image).resize((130,130)).convert("L") for image in image_paths]
+    array_representation = [np.array(image).ravel()/255 for image in btw_im]
+    columns = [ f"pixel {i}" for i in range(130*130)]
+    pixel_color_df = pd.DataFrame(data = array_representation, columns=columns)
+    return pixel_color_df
+    
+#Transform data
+transformed_data = data_transformation(image_paths = Xtrain)
 
+
+
+sgd_clf = SGDClassifier(random_state = 1)
+cross_scores = cross_val_score(sgd_clf, transformed_data, Ytrain, cv=3, scoring="accuracy")
+y_train_predict = cross_val_predict(sgd_clf, transformed_data, Ytrain)
+conf_matrix = confusion_matrix(Ytrain, y_train_predict)
+print(conf_matrix)
 
 
 
