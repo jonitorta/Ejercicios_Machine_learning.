@@ -8,6 +8,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import cross_val_predict
 from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_score, recall_score, f1_score
 
 
 data_dir ="Yoga" 
@@ -82,19 +83,31 @@ def data_transformation(image_paths):
 #Transform data
 transformed_data = data_transformation(image_paths = Xtrain)
 
-
-
+#Here we use sdg to train the model 
 sgd_clf = SGDClassifier(random_state = 1)
-cross_scores = cross_val_score(sgd_clf, transformed_data, Ytrain, cv=3, scoring="accuracy")
-y_train_predict = cross_val_predict(sgd_clf, transformed_data, Ytrain)
-conf_matrix = confusion_matrix(Ytrain, y_train_predict)
-print(conf_matrix)
+#just 3 folds because train set is small (700 samples)
+#cross_scores = cross_val_score(sgd_clf, transformed_data, Ytrain, cv=3, scoring="accuracy")
+#Here we return the prediction compared to the actual values
+#y_train_prediction = cross_val_predict(sgd_clf, transformed_data, Ytrain)
+#Create confusion matrix
+#conf_matrix = confusion_matrix(Ytrain, y_train_prediction)
+#Compute precision, recall and f1 score that is the harmonic mean of precision and recall scores.
+#precision_scr = precision_score(Ytrain, y_train_prediction)
+#recall_scr = recall_score(Ytrain, y_train_prediction)
+#f1_scr = f1_score(Ytrain, y_train_prediction)
+#To check the best score 
+y_scores = cross_val_predict(sgd_clf, transformed_data, Ytrain,
+                                        method = "decision function")
+from sklearn.metrics import precision_recall_curve
+precisions, recalls, thresholds = precision_recall_curve(Ytrain, y_scores)
+
+def plot_precision_recall_threshold(precisions, recalls, thresholds):
+    plt.plot(thresholds, precisions[:-1], "b--", label="Precision")
+    plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
 
 
-
-
-
-
+plot_precision_recall_threshold(precisions, recalls, thresholds)
+plt.show()
 
 
 pass
