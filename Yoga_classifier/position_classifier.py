@@ -1,3 +1,4 @@
+from cgi import test
 import os
 import numpy as np
 import pandas as pd
@@ -60,14 +61,20 @@ image_file_labels = [
     key for key in files_per_class 
     for i in range(files_per_class[key])
 ]
-
-#Create train and test set with stratify on the yoga position
-Xtrain, Xtest, Ytrain, Ytest = train_test_split(
-    image_file_names,
-    image_file_labels,
-    test_size = 0.2,
-    stratify = image_file_labels
-)
+#Here we chose what class to predict.
+target_class = "Tree"
+image_class_labels = (np.asarray(image_file_labels) == np.asanyarray(target_class))
+#Create train and test set
+test_frac = 0.2
+Xtrain, Ytrain, Xtest, Ytest = [],[],[],[]
+for i in range(total_files):
+    rann = np.random.random()
+    if rann < test_frac:
+        Xtest.append(image_file_names[i])
+        Ytest.append(image_class_labels[i])
+    else :
+        Xtrain.append(image_file_names[i])
+        Ytrain.append(image_class_labels[i])
 
 def data_transformation(image_paths):
     '''
@@ -97,7 +104,7 @@ sgd_clf = SGDClassifier(random_state = 1)
 #f1_scr = f1_score(Ytrain, y_train_prediction)
 #To check the best score 
 y_scores = cross_val_predict(sgd_clf, transformed_data, Ytrain,
-                                        method = "decision function")
+                                        method = "decision_function")
 from sklearn.metrics import precision_recall_curve
 precisions, recalls, thresholds = precision_recall_curve(Ytrain, y_scores)
 
