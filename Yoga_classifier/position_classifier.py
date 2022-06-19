@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from PIL import Image
 
 
 data_dir ="Yoga" 
@@ -69,9 +70,43 @@ def plot_images(path,category):
 
 #Lets see some images.
 #plot_images(data_dir, "Tree")
+
+#Create a test train sets.
+test_frac = 0.2
+Xtrain, Ytrain, Xtest, Ytest = [],[],[],[]
+for i in range(total_files):
+    rann = np.random.random()
+    if rann < test_frac:
+        Xtest.append(image_names[i])
+        Ytest.append(images_list[i])
+    else :
+        Xtrain.append(image_names[i])
+        Ytrain.append(images_list[i])
+
+def data_transformation(images_path):
+    '''
+    Transform images rescaling and to gray color.
+    :param images_path: list with image paths.
+    :return df: df with pixel intensity from 0 to 1 in columns and image in rows.
+    '''
+    resize_gray_images = [Image.open(image).resize((150,150)).convert("L")
+        for image in images_path
+    ]
     
+    array_representation = [
+        np.array(transformed_image).ravel()/255
+        for transformed_image in resize_gray_images
+    ]
+
+    column_names = [f"pixel {i}" for i in range(150*150)]
+
+    pixel_color_df = pd.DataFrame(data = array_representation, columns= column_names)
+
+    return pixel_color_df
 
 
 
 
+
+    
 pass
