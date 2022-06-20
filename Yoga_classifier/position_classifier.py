@@ -103,9 +103,24 @@ def data_transformation(images_path):
     pixel_color_df = pd.DataFrame(data = array_representation, columns= column_names)
 
     return pixel_color_df
+#Transform data
+pixel_df = data_transformation(Xtrain)
+#Chose a target class
+target_class = "Tree"
+#Create a list false when is not target class true when is
+is_target = (np.asarray(Ytrain) == target_class )
+#Create a classifier
+from sklearn.linear_model import SGDClassifier
+sdg_clf = SGDClassifier(random_state=1)
 
+from sklearn.model_selection import cross_val_score
+accuracy = cross_val_score(sdg_clf, pixel_df, is_target, scoring = "accuracy", cv=3)
 
+from sklearn.model_selection import cross_val_predict
+predictions = cross_val_predict(sdg_clf, pixel_df, is_target, cv=3)
 
+from sklearn.metrics import confusion_matrix
+cnf_mtx = confusion_matrix(is_target, predictions)
 
 
     
