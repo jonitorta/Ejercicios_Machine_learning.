@@ -119,14 +119,14 @@ accuracy = cross_val_score(sdg_clf, pixel_df, is_target, scoring = "accuracy", c
 from sklearn.model_selection import cross_val_predict
 predictions = cross_val_predict(sdg_clf, pixel_df, is_target, cv=3)
 
-from sklearn.metrics import confusion_matrix, f1_score
+from sklearn.metrics import confusion_matrix
 cnf_mtx = confusion_matrix(is_target, predictions)
 
-from sklearn.metrics import precision_score, recall_score
+#from sklearn.metrics import precision_score, recall_score, , f1_score
 
 class_scores = cross_val_predict(sdg_clf, pixel_df, is_target, cv=3, method = "decision_function")     
 
-from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import precision_recall_curve, roc_curve, roc_auc_score
 
 precisions, recalls, thresholds = precision_recall_curve(is_target,class_scores)
 
@@ -138,9 +138,19 @@ def plot_precisions_recalls_vs_threshold(precisions,recalls,thresholds):
     plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
     plt.show()
 
-#plot_precisions_recalls_vs_threshold(precisions,recalls,thresholds)
+plot_precisions_recalls_vs_threshold(precisions,recalls,thresholds)
 
+false_positive_rate, true_positive_rate, thresholds = roc_curve(is_target,class_scores)
 
+def plot_roc_curve(fpr, tpr, label=None):
+    '''
+    Plot roc curve
+    '''
+    plt.plot(fpr, tpr, linewidth=2, label=label)
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.show()
+
+plot_roc_curve(false_positive_rate, true_positive_rate, thresholds)
 
 
 pass
