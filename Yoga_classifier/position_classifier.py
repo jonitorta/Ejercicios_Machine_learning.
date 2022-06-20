@@ -119,9 +119,28 @@ accuracy = cross_val_score(sdg_clf, pixel_df, is_target, scoring = "accuracy", c
 from sklearn.model_selection import cross_val_predict
 predictions = cross_val_predict(sdg_clf, pixel_df, is_target, cv=3)
 
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, f1_score
 cnf_mtx = confusion_matrix(is_target, predictions)
 
+from sklearn.metrics import precision_score, recall_score
 
-    
+class_scores = cross_val_predict(sdg_clf, pixel_df, is_target, cv=3, method = "decision_function")     
+
+from sklearn.metrics import precision_recall_curve
+
+precisions, recalls, thresholds = precision_recall_curve(is_target,class_scores)
+
+def plot_precisions_recalls_vs_threshold(precisions,recalls,thresholds):
+    '''
+    Plot precision and recall vs threshold
+    '''
+    plt.plot(thresholds, precisions[:-1], "b--", label="Precision")
+    plt.plot(thresholds, recalls[:-1], "g-", label="Recall")
+    plt.show()
+
+#plot_precisions_recalls_vs_threshold(precisions,recalls,thresholds)
+
+
+
+
 pass
