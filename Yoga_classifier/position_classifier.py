@@ -4,9 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from PIL import Image
+from sklearn import metrics
 
 
-data_dir ="Yoga" 
+data_dir ="YogaPoses" 
 
 def data_structure(path):
     '''
@@ -151,6 +152,41 @@ def plot_roc_curve(fpr, tpr, label=None):
     plt.show()
 
 plot_roc_curve(false_positive_rate, true_positive_rate, thresholds)
+
+from joblib import dump
+
+def store_metrics(*args, name = "Metrics"):
+    '''
+    Save dict in pkl format with key as variable name and 
+    value the value assigned to the variable, file is named with
+    name param.
+    :param **kargs: array, matrix or numeric value to store. 
+    :param name : str name of file to save
+    '''
+    def return_variable_name(variable_name):
+        '''
+        Returns variable name as a string
+        '''
+        return f"{variable_name=}".split("=")[0]
+
+
+    names = [return_variable_name(variable) for variable in args]
+    values = [values for values in args]
+
+    to_save = pd.DataFrame(dict(zip(names, values)))
+    
+    return to_save
+    #dump(to_save, name)
+
+to_save = store_metrics(accuracy,
+             predictions,
+             cnf_mtx,
+             name="Metrics")
+
+open_metrics = pd.read_pickle("Metrics")
+
+    
+
 
 
 pass
